@@ -1,0 +1,3 @@
+class TinyPicCategory:
+	CName = ''
+	CUrl = ''
