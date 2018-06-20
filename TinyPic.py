@@ -13,6 +13,18 @@ class TinyPic:
 		self.request = TinyPicUrlRequest()
 		self.helper = TinyPicHelper()
 
+	def __getUploadBasicInfo(self):
+		basicInfo = {}
+		url = "http://tinypic.com/"
+		soup = bs4.BeautifulSoup(self.request.Open(url))
+		basicInfo['UPLOAD_IDENTIFIER'] = str(soup.find('input', {'name' : 'UPLOAD_IDENTIFIER'}).get('value'))
+		basicInfo['upk'] = str(soup.find('input', {'name' : 'upk'}).get('value'))
+		basicInfo['domain_lang'] = str(soup.find('input', {'name' : 'domain_lang'}).get('value'))
+		basicInfo['action'] = 'upload'
+		basicInfo['MAX_FILE_SIZE'] = str(soup.find('input', {'name' : 'MAX_FILE_SIZE'}).get('value'))
+		basicInfo['shareopt'] = str(soup.find('input', {'name' : 'shareopt'}).get('value'))
+		return basicInfo;
+
 	def GetVideosByPage(self, page = 1):
 		videos=[]
 		url = "http://tinypic.com/videos.php?page=" + str(page)
@@ -103,6 +115,27 @@ class TinyPic:
 	def SearchImages(self,searchTag):
 		return GetImagsByCategory(searchTag)
 
+	def UploadImage(self, imagePath):
+		bsi = self.__getUploadBasicInfo()
+		header = {
+			"HOST": "tinypic.com",
+			"Method": "POST"
+		}
+		data = {
+			'UPLOAD_IDENTIFIER': bsi['UPLOAD_IDENTIFIER'],
+			'upk': bsi['upk'],
+			'domain_lang': bsi['domain_lang'],
+			'action': bsi['action'],
+			'MAX_FILE_SIZE': bsi['MAX_FILE_SIZE'],
+			'shareopt':bsi['shareopt'],
+			"the_file": imagePath,
+			"file_type": "image",
+		}
+		print self.request.Post("tinypic.com", "http://tinypic.com/upload.php", header, data);
+
+	def UploadVideo(videoPath):
+		pass
+
 	def Login(self, email, password, confirmcode):
 		return
 
@@ -120,3 +153,8 @@ class TinyPic:
 
 	def GetMyImages():
 		return
+
+if __name__ == '__main__':
+	tp = TinyPic()
+	tp.UploadImage("C:\\Users\\Administrator\\Pictures\\feather.jpg")
+
